@@ -1,0 +1,325 @@
+openapi: 3.0.0
+info:
+  title: Turkish Recipe API
+  version: 1.0.0
+  description: Simple REST API for Turkish recipes
+
+servers:
+  - url: /
+    description: API Server
+
+paths:
+  /api/recipes:
+    get:
+      summary: Get all recipes
+      description: Returns a list of recipes. Can be filtered by category and searched by keyword.
+      parameters:
+        - in: query
+          name: categoryId
+          schema:
+            type: string
+          description: Filter recipes by category ID (e.g., main-course, soup, dessert)
+          example: "main-course"
+        - in: query
+          name: keyword
+          schema:
+            type: string
+          description: Search recipes by name or description
+          example: "mercimek"
+      responses:
+        200:
+          description: List of recipes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RecipeListItem'
+                example: [
+                  {
+                    "id": 1,
+                    "name": "Karnıyarık",
+                    "description": "Patlıcan içine kıymalı harç konularak yapılan geleneksel Türk yemeği",
+                    "categoryId": "main-course",
+                    "category": "Ana Yemek",
+                    "difficulty": "Medium",
+                    "prepTime": 30,
+                    "cookTime": 45,
+                    "image": "https://example.com/images/karniyarik.jpg"
+                  },
+                  {
+                    "id": 2,
+                    "name": "Mercimek Çorbası",
+                    "description": "Kırmızı mercimek ile yapılan besleyici ve lezzetli çorba",
+                    "categoryId": "soup",
+                    "category": "Çorba",
+                    "difficulty": "Easy",
+                    "prepTime": 15,
+                    "cookTime": 30,
+                    "image": "https://example.com/images/mercimek-corbasi.jpg"
+                  }
+                ]
+        500:
+          $ref: '#/components/responses/InternalServerError'
+
+  /api/recipes/{id}:
+    get:
+      summary: Get recipe by ID
+      description: Returns detailed information about a specific recipe
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: Recipe ID
+          example: 1
+      responses:
+        200:
+          description: Recipe details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Recipe'
+                example:
+                  id: 1
+                  name: "Karnıyarık"
+                  description: "Patlıcan içine kıymalı harç konularak yapılan geleneksel Türk yemeği"
+                  categoryId: "main-course"
+                  difficulty: "Medium"
+                  prepTime: 30
+                  cookTime: 45
+                  servings: 4
+                  calories: 320
+                  image: "https://example.com/images/karniyarik.jpg"
+                  ingredients: [
+                    { name: "patlıcan", amount: 4, unit: "adet" },
+                    { name: "kıyma", amount: 400, unit: "gram" },
+                    { name: "soğan", amount: 2, unit: "adet" },
+                    { name: "domates", amount: 2, unit: "adet" },
+                    { name: "yeşil biber", amount: 4, unit: "adet" },
+                    { name: "sarımsak", amount: 3, unit: "diş" },
+                    { name: "zeytinyağı", amount: 100, unit: "ml" },
+                    { name: "tuz", amount: 1, unit: "tatlı kaşığı" },
+                    { name: "karabiber", amount: 1, unit: "çay kaşığı" }
+                  ]
+                  instructions: [
+                    "Patlıcanları alacalı soyup tuzlu suda bekletin",
+                    "Kıymalı harcı hazırlayın: Soğanları yemeklik doğrayıp kıyma ile kavurun",
+                    "Domates, biber ve baharatları ekleyip pişirin",
+                    "Patlıcanları kızartın ve ortalarını yarın",
+                    "İçlerine kıymalı harç doldurun",
+                    "180 derece fırında 25-30 dakika pişirin"
+                  ]
+                  nutrition:
+                    calories: 320
+                    protein: 18
+                    carbohydrates: 24
+                    fat: 15
+                    fiber: 8
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+
+  /api/categories:
+    get:
+      summary: Get all categories
+      description: Returns a list of all recipe categories
+      responses:
+        200:
+          description: List of categories
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Category'
+                example: [
+                  {
+                    "id": "main-course",
+                    "name": "Ana Yemek",
+                    "description": "Türk mutfağının ana yemekleri"
+                  },
+                  {
+                    "id": "soup",
+                    "name": "Çorba",
+                    "description": "Geleneksel Türk çorbaları"
+                  }
+                ]
+        500:
+          $ref: '#/components/responses/InternalServerError'
+
+components:
+  schemas:
+    Recipe:
+      type: object
+      required: [id, name, description, categoryId, difficulty, prepTime, cookTime, servings, calories, image, ingredients, instructions, nutrition]
+      properties:
+        id:
+          type: integer
+          description: Unique identifier for the recipe
+        name:
+          type: string
+          description: Recipe name in Turkish
+        description:
+          type: string
+          description: Brief description of the recipe in Turkish
+        categoryId:
+          type: string
+          description: Category identifier
+        difficulty:
+          type: string
+          description: Difficulty level of the recipe
+          enum: ["Easy", "Medium", "Hard"]
+        prepTime:
+          type: integer
+          description: Preparation time in minutes
+        cookTime:
+          type: integer
+          description: Cooking time in minutes
+        servings:
+          type: integer
+          description: Number of servings
+        calories:
+          type: integer
+          description: Calories per serving
+        image:
+          type: string
+          description: URL to recipe image
+        ingredients:
+          type: array
+          description: List of ingredients
+          items:
+            $ref: '#/components/schemas/Ingredient'
+        instructions:
+          type: array
+          description: Step by step cooking instructions in Turkish
+          items:
+            type: string
+        nutrition:
+          $ref: '#/components/schemas/Nutrition'
+          description: Nutritional information per serving
+
+    RecipeListItem:
+      type: object
+      required: [id, name, description, categoryId, category, difficulty, prepTime, cookTime, image]
+      properties:
+        id:
+          type: integer
+          description: Unique identifier for the recipe
+        name:
+          type: string
+          description: Recipe name in Turkish
+        description:
+          type: string
+          description: Brief description of the recipe in Turkish
+        categoryId:
+          type: string
+          description: Category identifier
+        category:
+          type: string
+          description: Category name in Turkish
+        difficulty:
+          type: string
+          description: Difficulty level of the recipe
+          enum: ["Easy", "Medium", "Hard"]
+        prepTime:
+          type: integer
+          description: Preparation time in minutes
+        cookTime:
+          type: integer
+          description: Cooking time in minutes
+        image:
+          type: string
+          description: URL to recipe image
+
+    Category:
+      type: object
+      required: [id, name, description]
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the category
+        name:
+          type: string
+          description: Category name in Turkish
+        description:
+          type: string
+          description: Category description in Turkish
+
+    Ingredient:
+      type: object
+      required: [name, amount, unit]
+      properties:
+        name:
+          type: string
+          description: Ingredient name in Turkish
+        amount:
+          type: number
+          description: Amount of ingredient
+        unit:
+          type: string
+          description: Unit of measurement in Turkish
+
+    Nutrition:
+      type: object
+      required: [calories, protein, carbohydrates, fat, fiber]
+      properties:
+        calories:
+          type: number
+          description: Calories per serving
+        protein:
+          type: number
+          description: Protein content in grams
+        carbohydrates:
+          type: number
+          description: Carbohydrate content in grams
+        fat:
+          type: number
+          description: Fat content in grams
+        fiber:
+          type: number
+          description: Fiber content in grams
+
+    Error:
+      type: object
+      required: [message]
+      properties:
+        message:
+          type: string
+          description: Error message
+        error:
+          type: string
+          description: Detailed error information (if available)
+
+  responses:
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            message: "Invalid recipe ID"
+
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            message: "Recipe not found"
+
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            message: "Internal server error"
+            error: "Unexpected error occurred"
