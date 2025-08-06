@@ -9,3 +9,129 @@
   min-height: 100vh;
   background-color: #f5f5f5;
 }
+
+.recipe-card-wrapper {
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+  transition: transform 0.2s ease-in-out;
+}
+
+.recipe-card {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  background: white;
+  padding: 1rem;
+  height: 100%;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.favorite-button {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: white;
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease-in-out;
+  z-index: 1;
+}
+
+.favorite-button:hover {
+  transform: scale(1.1);
+}
+
+.heart-icon {
+  width: 24px;
+  height: 24px;
+  color: #ff4b4b;
+}
+
+.heart-icon.filled {
+  color: #ff4b4b;
+}
+
+.recipe-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.recipe-header h1 {
+  margin: 0;
+}
+
+.recipe-detail .favorite-button {
+  position: static;
+  margin-left: 1rem;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 2rem;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin: 2rem 0;
+}
+
+.empty-state p {
+  margin-bottom: 1rem;
+  color: #666;
+}
+
+.primary-button {
+  display: inline-block;
+  padding: 0.75rem 1.5rem;
+  background-color: #ff4b4b;
+  color: white;
+  text-decoration: none;
+  border-radius: 4px;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.primary-button:hover {
+  background-color: #ff3333;
+}
+
+.main-nav {
+  background-color: white;
+  padding: 1rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+}
+
+.nav-links {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  gap: 2rem;
+}
+
+.nav-links a {
+  text-decoration: none;
+  color: #333;
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  transition: all 0.2s ease-in-out;
+}
+
+.nav-links a:hover {
+  color: #ff4b4b;
+}
+
+.nav-links a.active {
+  color: #ff4b4b;
+  background-color: rgba(255, 75, 75, 0.1);
+}

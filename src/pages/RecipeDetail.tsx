@@ -1,13 +1,30 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
 import { getRecipe } from '../services/api';
 import { Recipe } from '../types';
+import { addToFavorites, removeFromFavorites, selectFavorites } from '../store/slices/favoritesSlice';
+import { HeartIcon as HeartOutline } from '@heroicons/react/24/outline';
+import { HeartIcon as HeartSolid } from '@heroicons/react/24/solid';
 
 export default function RecipeDetail() {
   const { id } = useParams<{ id: string }>();
+  const dispatch = useDispatch();
+  const favorites = useSelector(selectFavorites);
   const [recipe, setRecipe] = useState<Recipe | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const handleFavoriteClick = () => {
+    if (!recipe) return;
+    
+    const isFavorite = favorites.some((fav: { id: number }) => fav.id === recipe.id);
+    if (isFavorite) {
+      dispatch(removeFromFavorites(recipe.id));
+    } else {
+      dispatch(addToFavorites(recipe));
+    }
+  };
 
   useEffect(() => {
     const fetchRecipe = async () => {
@@ -58,7 +75,19 @@ export default function RecipeDetail() {
       </Link>
 
       <div className="recipe-detail">
-        <h1>{recipe.name}</h1>
+        <div className="recipe-header">
+          <h1>{recipe.name}</h1>
+          <button
+            className="favorite-button"
+            onClick={handleFavoriteClick}
+          >
+            {favorites.some((fav: { id: number }) => fav.id === recipe.id) ? (
+              <HeartSolid className="heart-icon filled" />
+            ) : (
+              <HeartOutline className="heart-icon" />
+            )}
+          </button>
+        </div>
         <p>{recipe.description}</p>
         
         <div className="recipe-meta">

@@ -1,12 +1,33 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { getRecipes, getCategories } from '../services/api';
+import { useDispatch, useSelector } from 'react-redux';
+import { getRecipes, getCategories, getRecipe } from '../services/api';
 import { RecipeListItem, Category, RecipeFilters } from '../types';
+import { addToFavorites, removeFromFavorites, selectFavorites } from '../store/slices/favoritesSlice';
+import { HeartIcon as HeartOutline } from '@heroicons/react/24/outline';
+import { HeartIcon as HeartSolid } from '@heroicons/react/24/solid';
 
 export default function RecipeList() {
+  const dispatch = useDispatch();
+  const favorites = useSelector(selectFavorites);
   const [recipes, setRecipes] = useState<RecipeListItem[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [filters, setFilters] = useState<RecipeFilters>({});
+
+  const handleFavoriteClick = async (e: React.MouseEvent, recipe: RecipeListItem) => {
+    e.preventDefault();
+    const isFavorite = favorites.some((fav: { id: number }) => fav.id === recipe.id);
+    if (isFavorite) {
+      dispatch(removeFromFavorites(recipe.id));
+    } else {
+      try {
+        const fullRecipe = await getRecipe(recipe.id.toString());
+        dispatch(addToFavorites(fullRecipe));
+      } catch (error) {
+        console.error('Error adding recipe to favorites:', error);
+      }
+    }
+  };
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -128,20 +149,31 @@ export default function RecipeList() {
 
       <div className="recipe-grid">
         {recipes.map((recipe) => (
-          <Link
-            key={recipe.id}
-            to={`/recipe/${recipe.id}`}
-            className="recipe-card"
-          >
-            <h2>{recipe.name}</h2>
-            <p>{recipe.description}</p>
-            <div className="recipe-meta">
-              <p className="category-name">{recipe.category}</p>
-              <p className="difficulty">{recipe.difficulty}</p>
-              <p className="time">{recipe.prepTime + recipe.cookTime} min</p>
-            </div>
-            {recipe.image && <img src={recipe.image} alt={recipe.name} />}
-          </Link>
+          <div key={recipe.id} className="recipe-card-wrapper">
+            <Link
+              to={`/recipe/${recipe.id}`}
+              className="recipe-card"
+            >
+              <h2>{recipe.name}</h2>
+              <p>{recipe.description}</p>
+              <div className="recipe-meta">
+                <p className="category-name">{recipe.category}</p>
+                <p className="difficulty">{recipe.difficulty}</p>
+                <p className="time">{recipe.prepTime + recipe.cookTime} min</p>
+              </div>
+              {recipe.image && <img src={recipe.image} alt={recipe.name} />}
+            </Link>
+            <button
+              className="favorite-button"
+              onClick={(e) => handleFavoriteClick(e, recipe)}
+            >
+              {favorites.some((fav: { id: number }) => fav.id === recipe.id) ? (
+                <HeartSolid className="heart-icon filled" />
+              ) : (
+                <HeartOutline className="heart-icon" />
+              )}
+            </button>
+          </div>
         ))}
       </div>
     </div>
